@@ -1,59 +1,36 @@
-import os
 import telebot
 import schedule
 import time
-from flask import Flask
-import threading
 
-# Получаем токен из переменной окружения
-TOKEN = os.getenv("7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw", "").strip()
-CHAT_ID = os.getenv("7938046164")
-
-if not TOKEN:
-    raise ValueError("Ошибка: переменная окружения TOKEN не установлена или пуста!")
-
-if not CHAT_ID:
-    raise ValueError("Ошибка: переменная окружения CHAT_ID не установлена!")
+TOKEN = "7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw"
+CHAT_ID = "7938046164"
 
 bot = telebot.TeleBot(TOKEN)
 
-# Обработчик команды /start
+# Ответ на команду /start
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "Привет! 🐱 Я бот, который будет отправлять тебе сказки про котов-колбасок каждую ночь в 22:00! 🎉")
+    bot.send_message(message.chat.id, "Привет! 🐱 Я буду отправлять тебе сказки про котов-колбасок каждый день в 22:00!")
 
-# Функция отправки сказок
+# Функция для отправки сказок
 def send_tales():
-    bot.send_message(CHAT_ID, "📖 Вот твои сказки на сегодня!")
-    bot.send_message(CHAT_ID, "🐱 Сказка 1: Печенье-великан...")
-    bot.send_message(CHAT_ID, "🐱 Сказка 2: Конфетный лабиринт...")
+    tale1 = "🐱 История 1: Приключения котов-колбасок..."
+    tale2 = "🐱 История 2: Сладкий мир котов-колбасок..."
+    bot.send_message(CHAT_ID, tale1)
+    bot.send_message(CHAT_ID, tale2)
 
-# Запускаем задачу по расписанию
-schedule.every().day.at("23:45").do(send_tales)
+# Запланировать отправку в 22:00 каждый день
+schedule.every().day.at("22:00").do(send_tales)
 
-def run_scheduler():
+# Запускаем бота
+def run_bot():
     while True:
         schedule.run_pending()
         time.sleep(60)
 
-threading.Thread(target=run_scheduler, daemon=True).start()
-
-# Запуск бота в отдельном потоке
-def run_bot():
-    bot.polling(none_stop=True)
-
-threading.Thread(target=run_bot, daemon=True).start()
-
-# Создаём Flask-сервер (чтобы Render не ругался)
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Бот работает!"
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Render выдаёт порт
-    app.run(host="0.0.0.0", port=port)
+import threading
+threading.Thread(target=run_bot).start()
+bot.polling(none_stop=True)
 
 
 
