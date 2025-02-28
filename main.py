@@ -25,7 +25,7 @@ def send_tales():
     bot.send_message(CHAT_ID, tale2)
 
 # Запланировать отправку в 22:00 каждый день
-schedule.every().day.at("00:20").do(send_tales)
+schedule.every().day.at("00:25").do(send_tales)
 
 # Запускаем бота
 def run_bot():
