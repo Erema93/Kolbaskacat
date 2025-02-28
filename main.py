@@ -2,10 +2,10 @@ import telebot
 import schedule
 import time
 
-TOKEN = "7938046164:AAHKw2wmUyBuziXuy0lPlkYXQQgH4D3wmzA"
+MYTOKEN = "7938046164:AAHKw2wmUyBuziXuy0lPlkYXQQgH4D3wmzA"
 CHAT_ID = "7938046164"
 
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(MYTOKEN)
 
 # Ответ на команду /start
 @bot.message_handler(commands=['start'])
