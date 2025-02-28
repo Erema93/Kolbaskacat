@@ -1,6 +1,7 @@
 import telebot
 import schedule
 import time
+const port = process.env.PORT || 4000
 
 TOKEN = "7938046164:AAHKw2wmUyBuziXuy0lPlkYXQQgH4D3wmzA"
 CHAT_ID = "7938046164"
