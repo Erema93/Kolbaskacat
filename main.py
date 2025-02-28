@@ -21,7 +21,7 @@ def send_tales():
     bot.send_message(CHAT_ID, "🐱 Сказка 2: Конфетный лабиринт...")
 
 # Запускаем задачу по расписанию
-schedule.every().day.at("22:00").do(send_tales)
+schedule.every().day.at("23:40").do(send_tales)
 
 def run_scheduler():
     while True:
