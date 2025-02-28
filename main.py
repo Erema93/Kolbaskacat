@@ -1,9 +1,11 @@
 import telebot
 import schedule
 import time
+import threading
 
 TOKEN = "7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw"
-CHAT_ID = "7938046164"
+
+CHAT_ID = "572255263"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -11,6 +13,7 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.send_message(message.chat.id, "Привет! 🐱 Я буду отправлять тебе сказки про котов-колбасок каждый день в 22:00!")
+    print(f"Chat ID: {message.chat.id}")  # Выводим chat_id, чтобы узнать, какой ID использовать
 
 # Функция для отправки сказок
 def send_tales():
@@ -28,9 +31,9 @@ def run_bot():
         schedule.run_pending()
         time.sleep(60)
 
-import threading
 threading.Thread(target=run_bot).start()
 bot.polling(none_stop=True)
+
 
 
 
