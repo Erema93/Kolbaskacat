@@ -2,10 +2,10 @@ import telebot
 import schedule
 import time
 
-MYTOKEN = "7938046164:AAHKw2wmUyBuziXuy0lPlkYXQQgH4D3wmzA"
+TOKEN = "7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw"
 CHAT_ID = "7938046164"
 
-bot = telebot.TeleBot(MYTOKEN)
+bot = telebot.TeleBot(TOKEN)
 
 # Ответ на команду /start
 @bot.message_handler(commands=['start'])
@@ -31,5 +31,6 @@ def run_bot():
 import threading
 threading.Thread(target=run_bot).start()
 bot.polling(none_stop=True)
+
 
 
