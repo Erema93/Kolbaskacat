@@ -1,10 +1,13 @@
+import os
 import telebot
 import schedule
 import time
 import threading
+from flask import Flask
+
+app = Flask(__name__)
 
 TOKEN = "7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw"
-
 CHAT_ID = "572255263"
 
 bot = telebot.TeleBot(TOKEN)
@@ -13,7 +16,6 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.send_message(message.chat.id, "Привет! 🐱 Я буду отправлять тебе сказки про котов-колбасок каждый день в 22:00!")
-    print(f"Chat ID: {message.chat.id}")  # Выводим chat_id, чтобы узнать, какой ID использовать
 
 # Функция для отправки сказок
 def send_tales():
@@ -32,7 +34,17 @@ def run_bot():
         time.sleep(60)
 
 threading.Thread(target=run_bot).start()
-bot.polling(none_stop=True)
+
+# Flask для работы с Render
+@app.route('/')
+def index():
+    return "Бот работает!"
+
+# Указываем порт, передаваемый через переменную окружения
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Если переменная окружения PORT отсутствует, используем 5000
+    app.run(host="0.0.0.0", port=port)
+
 
 
 
