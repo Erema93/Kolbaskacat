@@ -3,9 +3,10 @@ import telebot
 import schedule
 import time
 import threading
+from flask import Flask
 
-TOKEN = "7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw"
-CHAT_ID = "ВАШ_ПРАВИЛЬНЫЙ_CHAT_ID"  # Замените на правильный chat_id
+TOKEN = "7149701343:AAHj3tT3KFlN5YXUQdTxSbNkDcGPyt3vjjY"
+CHAT_ID = "7149701343"  # Замените на правильный chat_id
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -25,19 +26,16 @@ def send_tales():
     except Exception as e:
         print(f"Ошибка при отправке сказок: {e}")
 
-# Запланировать отправку в 22:00 каждый день
-schedule.every().day.at("22:00").do(send_tales)
+# Запланировать отправку каждые 1 минуту (для теста)
+schedule.every(1).minutes.do(send_tales)
 
-# Запускаем бота
+# Запускаем бота в отдельном потоке
 def run_bot():
     while True:
         schedule.run_pending()
         time.sleep(60)
 
-threading.Thread(target=run_bot).start()
-
 # Главный маршрут Flask
-from flask import Flask
 app = Flask(__name__)
 
 @app.route('/')
@@ -51,6 +49,7 @@ if __name__ == "__main__":
     print(f"Starting app on port {port}")  # Логируем, на каком порту запускается сервер
     
     # Запускаем приложение на всех интерфейсах (0.0.0.0) и на правильном порту
+    threading.Thread(target=run_bot).start()  # Запускаем бота в фоновом режиме
     app.run(host="0.0.0.0", port=port)
 
 
