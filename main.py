@@ -3,7 +3,7 @@ import schedule
 import time
 
 TOKEN = "7938046164:AAHKw2wmUyBuziXuy0lPlkYXQQgH4D3wmzA"
-CHAT_ID = "7938046164"
+CHAT_ID = "572255263"
 
 bot = telebot.TeleBot(TOKEN)
 
