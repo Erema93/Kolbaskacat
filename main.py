@@ -25,7 +25,7 @@ def send_tales():
     bot.send_message(CHAT_ID, tale2)
 
 # Запланировать отправку в 22:00 каждый день
-schedule.every().day.at("00:25").do(send_tales)
+schedule.every().day.at("22:00").do(send_tales)
 
 # Запускаем бота
 def run_bot():
@@ -43,7 +43,9 @@ def index():
 # Указываем порт, передаваемый через переменную окружения
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Если переменная окружения PORT отсутствует, используем 5000
+    print(f"Starting app on port {port}")  # Логируем порт
     app.run(host="0.0.0.0", port=port)
+
 
 
 
