@@ -36,7 +36,7 @@ def send_tales():
 # Функция для запуска планировщика
 def run_scheduler():
     # Запланировать отправку на 22:00 каждый день (вместо каждых 1 минут)
-    schedule.every().day.at("22:00").do(send_tales)
+    schedule.every().day.at("01:30").do(send_tales)
     
     while True:
         try:
