@@ -6,7 +6,7 @@ from flask import Flask
 import threading
 
 # Получаем токен из переменной окружения
-TOKEN = os.getenv("7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw")
+TOKEN = os.getenv(" 7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw ")
 CHAT_ID = os.getenv("7938046164")
 
 if not TOKEN:
