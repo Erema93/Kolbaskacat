@@ -9,7 +9,7 @@ from flask import Flask
 app = Flask(__name__)
 
 TOKEN = "7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw"
-CHAT_ID = "7938046164"
+CHAT_ID = "7938046164"  # Убедитесь, что это правильный chat_id
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -28,13 +28,13 @@ def send_tales():
 # Запланировать отправку в 22:00 каждый день
 schedule.every().day.at("22:00").do(send_tales)
 
-# Запускаем бота
+# Запускаем бота в отдельном потоке
 def run_bot():
     while True:
         schedule.run_pending()
         time.sleep(60)
 
-threading.Thread(target=run_bot).start()
+threading.Thread(target=run_bot, daemon=True).start()  # daemon=True позволяет потоку завершаться при завершении основного потока
 
 # Главный маршрут Flask
 @app.route('/')
