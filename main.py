@@ -8,7 +8,7 @@ from flask import Flask
 app = Flask(__name__)
 
 TOKEN = "7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw"
-CHAT_ID = "572255263"
+CHAT_ID = "7938046164"
 
 bot = telebot.TeleBot(TOKEN)
 
