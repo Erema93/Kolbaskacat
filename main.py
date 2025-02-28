@@ -5,6 +5,7 @@ import time
 import threading
 from flask import Flask
 
+# Создаем Flask-приложение
 app = Flask(__name__)
 
 TOKEN = "7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw"
@@ -35,15 +36,19 @@ def run_bot():
 
 threading.Thread(target=run_bot).start()
 
-# Flask для работы с Render
+# Главный маршрут Flask
 @app.route('/')
 def index():
     return "Бот работает!"
 
-# Указываем порт, передаваемый через переменную окружения
+# Получаем порт из переменной окружения (используется Railway)
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Если переменная окружения PORT отсутствует, используем 5000
-    print(f"Starting app on port {port}")  # Логируем порт
+    # Получаем порт из окружения или по умолчанию 5000
+    port = int(os.environ.get("PORT", 5000))
+    
+    print(f"Starting app on port {port}")  # Логируем, на каком порту запускается сервер
+    
+    # Запускаем приложение на всех интерфейсах (0.0.0.0) и на правильном порту
     app.run(host="0.0.0.0", port=port)
 
 
