@@ -3,9 +3,17 @@ import telebot
 import schedule
 import time
 from flask import Flask
+import threading
 
-TOKEN = os.getenv("TOKEN")  # 7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw
-CHAT_ID = os.getenv("CHAT_ID")  # 7938046164
+# Получаем токен из переменной окружения
+TOKEN = os.getenv("7938046164:AAF77xQmwN1a3Hph19M6e-B0FiWB9UUzcYw")
+CHAT_ID = os.getenv("7938046164")
+
+if not TOKEN:
+    raise ValueError("Ошибка: переменная окружения TOKEN не установлена!")
+
+if not CHAT_ID:
+    raise ValueError("Ошибка: переменная окружения CHAT_ID не установлена!")
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -21,15 +29,20 @@ def send_tales():
     bot.send_message(CHAT_ID, "🐱 Сказка 2: Конфетный лабиринт...")
 
 # Запускаем задачу по расписанию
-schedule.every().day.at("23:40").do(send_tales)
+schedule.every().day.at("22:00").do(send_tales)
 
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(60)
 
-import threading
-threading.Thread(target=run_scheduler).start()
+threading.Thread(target=run_scheduler, daemon=True).start()
+
+# Запуск бота в отдельном потоке
+def run_bot():
+    bot.polling(none_stop=True)
+
+threading.Thread(target=run_bot, daemon=True).start()
 
 # Создаём Flask-сервер (чтобы Render не ругался)
 app = Flask(__name__)
@@ -41,7 +54,7 @@ def home():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Render выдаёт порт
     app.run(host="0.0.0.0", port=port)
-    bot.polling(none_stop=True)
+
 
 
 
