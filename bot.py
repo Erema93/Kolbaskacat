@@ -1,7 +1,8 @@
 import logging
-import random
+import os
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes, CallbackContext
+import random
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,8 +15,8 @@ SERVICES = [
     "Поверка счетчиков воды"
 ]
 
-TOKEN = "7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U"
-ADMIN_CHAT_ID = "572255263"
+TOKEN = os.getenv("7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U")
+ADMIN_CHAT_ID = os.getenv("572255263")
 
 request_counter = 0
 
@@ -93,7 +94,14 @@ def main():
     application.add_handler(conv_handler)
     application.add_error_handler(error)
 
-    application.run_polling()
+    # Запуск через webhook
+    port = int(os.environ.get("PORT", 8443))  # Render задает порт через переменную PORT
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path=TOKEN,
+        webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}"
+    )
 
 if __name__ == '__main__':
     main()
