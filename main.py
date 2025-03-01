@@ -2,9 +2,14 @@ import sqlite3
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import os
+import logging
 
-# Токен бота (получишь его у @BotFather в Telegram)
-TOKEN = '7149701343:AAHj3tT3KFlN5YXUQdTxSbNkDcGPyt3vjjY'
+# Настройка логирования
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Токен бота
+TOKEN = '7149701343:AAHj3tT3KFlN5YXUQdTxSbNkDcGPyt3vjjY'  # Замените на ваш токен
 
 # Инициализация базы данных SQLite
 def init_db():
@@ -93,6 +98,12 @@ async def delete_expense(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Неизвестная команда. Используй /start для помощи.")
 
+# Обработка ошибок
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.error(msg="Произошла ошибка:", exc_info=context.error)
+    if update:
+        await update.message.reply_text("Произошла ошибка. Попробуйте позже или свяжитесь с администратором.")
+
 def main():
     # Инициализация базы данных
     init_db()
@@ -107,11 +118,12 @@ def main():
     application.add_handler(CommandHandler("delete", delete_expense))
     application.add_handler(MessageHandler(filters.COMMAND, unknown))
 
+    # Добавление обработчика ошибок
+    application.add_error_handler(error_handler)
+
     # Запуск бота
     application.run_polling()
 
 if __name__ == '__main__':
     main()
-
-
 
