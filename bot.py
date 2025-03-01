@@ -10,13 +10,6 @@ logger = logging.getLogger(__name__)
 TOKEN = os.getenv("7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U")
 ADMIN_CHAT_ID = os.getenv("572255263")
 
-if not TOKEN:
-    logger.error("Токен не задан в переменных окружения. Укажи переменную TOKEN.")
-    raise ValueError("Токен не задан в переменных окружения. Укажи переменную TOKEN.")
-if not ADMIN_CHAT_ID:
-    logger.error("ADMIN_CHAT_ID не задан в переменных окружения.")
-    raise ValueError("ADMIN_CHAT_ID не задан в переменных окружения.")
-
 NAME, PHONE, ADDRESS, SERVICE = range(4)
 
 SERVICES = [
