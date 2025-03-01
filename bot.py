@@ -1,11 +1,17 @@
-import logging
 import os
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes, CallbackContext
+import logging
 import random
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+TOKEN = os.getenv("7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U")
+ADMIN_CHAT_ID = os.getenv("572255263")
+
+if not TOKEN:
+    raise ValueError("Токен не задан в переменных окружения. Укажи переменную TOKEN.")
 
 NAME, PHONE, ADDRESS, SERVICE = range(4)
 
@@ -14,9 +20,6 @@ SERVICES = [
     "Замена счетчиков воды",
     "Поверка счетчиков воды"
 ]
-
-TOKEN = os.getenv("7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U")
-ADMIN_CHAT_ID = os.getenv("572255263")
 
 request_counter = 0
 
@@ -78,30 +81,4 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"Ошибка: {context.error}")
 
 def main():
-    application = Application.builder().token(TOKEN).build()
-
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
-        states={
-            NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
-            PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_phone)],
-            ADDRESS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_address)],
-            SERVICE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_service)],
-        },
-        fallbacks=[CommandHandler('cancel', cancel)]
-    )
-
-    application.add_handler(conv_handler)
-    application.add_error_handler(error)
-
-    # Запуск через webhook
-    port = int(os.environ.get("PORT", 8443))  # Render задает порт через переменную PORT
-    application.run_webhook(
-        listen="0.0.0.0",
-        port=port,
-        url_path=TOKEN,
-        webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}"
-    )
-
-if __name__ == '__main__':
-    main()
+    application = Application.builder().token
