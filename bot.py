@@ -15,9 +15,9 @@ logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Получаем переменные окружения
-TOKEN = os.getenv("TOKEN")
-ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID")
-RENDER_HOSTNAME = os.getenv("RENDER_HOSTNAME")
+TOKEN = os.getenv("8012532063:AAGNNZ7XkdLQU_-sMR2SG9tLb1ZICVLOSWo")
+ADMIN_CHAT_ID = os.getenv("572255263")
+RENDER_HOSTNAME = os.getenv("aquanorma.onrender.com")
 
 # Проверяем, что переменные окружения заданы
 if not TOKEN:
