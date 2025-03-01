@@ -7,8 +7,26 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Получаем переменные окружения
 TOKEN = os.getenv("7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U")
 ADMIN_CHAT_ID = os.getenv("572255263")
+RENDER_HOSTNAME = os.getenv("aquanorma.onrender.com")
+
+# Добавляем отладочный вывод для проверки значений
+logger.info(f"TOKEN: {TOKEN}")
+logger.info(f"ADMIN_CHAT_ID: {ADMIN_CHAT_ID}")
+logger.info(f"RENDER_EXTERNAL_HOSTNAME: {RENDER_HOSTNAME}")
+
+# Проверяем, что переменные окружения заданы
+if not TOKEN:
+    logger.error("Токен не задан в переменных окружения. Укажи переменную TOKEN.")
+    raise ValueError("Токен не задан в переменных окружения. Укажи переменную TOKEN.")
+if not ADMIN_CHAT_ID:
+    logger.error("ADMIN_CHAT_ID не задан в переменных окружения.")
+    raise ValueError("ADMIN_CHAT_ID не задан в переменных окружения.")
+if not RENDER_HOSTNAME:
+    logger.error("RENDER_EXTERNAL_HOSTNAME не задан в переменных окружения.")
+    raise ValueError("RENDER_EXTERNAL_HOSTNAME не задан в переменных окружения.")
 
 NAME, PHONE, ADDRESS, SERVICE = range(4)
 
@@ -96,7 +114,7 @@ def main():
     application.add_error_handler(error)
 
     port = int(os.getenv("PORT", 8443))
-    webhook_url = f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}"
+    webhook_url = f"https://{RENDER_HOSTNAME}/{TOKEN}"
 
     logger.info(f"Установка webhook на URL: {webhook_url}")
     application.run_webhook(
