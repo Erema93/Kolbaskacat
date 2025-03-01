@@ -8,7 +8,8 @@ from telegram.ext import (
 )
 
 # Загружаем переменные окружения из .env (если локально)
-load_dotenv()
+if not load_dotenv():
+    logging.error("Не удалось загрузить файл .env")
 
 # Настройка логирования
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
@@ -21,15 +22,19 @@ RENDER_HOSTNAME = os.getenv("aquanorma.onrender.com")
 
 # Проверяем, что переменные окружения заданы
 if not TOKEN:
+    logger.error("❌ Токен не задан! Укажите переменную окружения TOKEN.")
     raise ValueError("❌ Токен не задан! Укажите переменную окружения TOKEN.")
 if not ADMIN_CHAT_ID:
+    logger.error("❌ ADMIN_CHAT_ID не задан! Укажите переменную окружения ADMIN_CHAT_ID.")
     raise ValueError("❌ ADMIN_CHAT_ID не задан! Укажите переменную окружения ADMIN_CHAT_ID.")
 if not RENDER_HOSTNAME:
+    logger.error("❌ RENDER_EXTERNAL_HOSTNAME не задан! Укажите переменную окружения RENDER_EXTERNAL_HOSTNAME.")
     raise ValueError("❌ RENDER_EXTERNAL_HOSTNAME не задан! Укажите переменную окружения RENDER_EXTERNAL_HOSTNAME.")
 
 try:
     ADMIN_CHAT_ID = int(ADMIN_CHAT_ID)  # Приведение к int
 except ValueError:
+    logger.error("❌ ADMIN_CHAT_ID должен быть числом!")
     raise ValueError("❌ ADMIN_CHAT_ID должен быть числом!")
 
 # Состояния в разговоре
