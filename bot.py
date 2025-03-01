@@ -20,6 +20,11 @@ TOKEN = os.getenv("8012532063:AAGNNZ7XkdLQU_-sMR2SG9tLb1ZICVLOSWo")
 ADMIN_CHAT_ID = os.getenv("572255263")
 RENDER_HOSTNAME = os.getenv("aquanorma.onrender.com")
 
+# Отладочные сообщения для проверки значений переменных окружения
+logger.info(f"TOKEN: {TOKEN}")
+logger.info(f"ADMIN_CHAT_ID: {ADMIN_CHAT_ID}")
+logger.info(f"RENDER_HOSTNAME: {RENDER_HOSTNAME}")
+
 # Проверяем, что переменные окружения заданы
 if not TOKEN:
     logger.error("❌ Токен не задан! Укажите переменную окружения TOKEN.")
