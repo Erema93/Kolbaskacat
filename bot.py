@@ -14,8 +14,8 @@ SERVICES = [
     "Поверка счетчиков воды"
 ]
 
-TOKEN = "YOUR_BOT_TOKEN_HERE"
-ADMIN_CHAT_ID = "YOUR_CHAT_ID_HERE"
+TOKEN = "7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U"
+ADMIN_CHAT_ID = "572255263"
 
 request_counter = 0
 
