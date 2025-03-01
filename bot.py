@@ -19,17 +19,26 @@ TOKEN = os.getenv("8012532063:AAGNNZ7XkdLQU_-sMR2SG9tLb1ZICVLOSWo")
 ADMIN_CHAT_ID = os.getenv("572255263")
 RENDER_HOSTNAME = os.getenv("aquanorma.onrender.com")
 
+# Отладочные сообщения для проверки значений переменных окружения
+logger.info(f"TOKEN: {TOKEN}")
+logger.info(f"ADMIN_CHAT_ID: {ADMIN_CHAT_ID}")
+logger.info(f"RENDER_HOSTNAME: {RENDER_HOSTNAME}")
+
 # Проверяем, что переменные окружения заданы
 if not TOKEN:
+    logger.error("❌ Токен не задан! Укажите переменную окружения TOKEN.")
     raise ValueError("❌ Токен не задан! Укажите переменную окружения TOKEN.")
 if not ADMIN_CHAT_ID:
+    logger.error("❌ ADMIN_CHAT_ID не задан! Укажите переменную окружения ADMIN_CHAT_ID.")
     raise ValueError("❌ ADMIN_CHAT_ID не задан! Укажите переменную окружения ADMIN_CHAT_ID.")
 if not RENDER_HOSTNAME:
+    logger.error("❌ RENDER_EXTERNAL_HOSTNAME не задан! Укажите переменную окружения RENDER_EXTERNAL_HOSTNAME.")
     raise ValueError("❌ RENDER_EXTERNAL_HOSTNAME не задан! Укажите переменную окружения RENDER_EXTERNAL_HOSTNAME.")
 
 try:
     ADMIN_CHAT_ID = int(ADMIN_CHAT_ID)  # Приведение к int
 except ValueError:
+    logger.error("❌ ADMIN_CHAT_ID должен быть числом!")
     raise ValueError("❌ ADMIN_CHAT_ID должен быть числом!")
 
 # Состояния в разговоре
