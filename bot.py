@@ -7,8 +7,12 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TOKEN=os.getenv("7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U")
-ADMIN_CHAT_ID=os.getenv("572255263")
+TOKEN = "7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U"  # Твой токен
+ADMIN_CHAT_ID = "572255263"  # Твой Telegram ID
+
+# Убери проверку, если токен задан вручную
+# if not TOKEN:
+#     raise ValueError("Токен не задан в переменных окружения. Укажи переменную TOKEN.")
 
 if not TOKEN:
     raise ValueError("Токен не задан в переменных окружения. Укажи переменную TOKEN.")
