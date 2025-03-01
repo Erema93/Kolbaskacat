@@ -7,12 +7,14 @@ from telegram.ext import (
     ConversationHandler, ContextTypes
 )
 
-# Загружаем переменные окружения из .env
-load_dotenv()
-
 # Настройка логирования
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Загружаем переменные окружения из .env
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if not load_dotenv(dotenv_path):
+    logger.error("Не удалось загрузить файл .env. Убедитесь, что файл существует.")
 
 # Получаем переменные окружения
 TOKEN = os.getenv("8012532063:AAGNNZ7XkdLQU_-sMR2SG9tLb1ZICVLOSWo")
