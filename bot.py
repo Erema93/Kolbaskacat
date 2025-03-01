@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Получаем переменные окружения
 TOKEN = os.getenv("7831214357:AAHNlb2lXwoLks9eN7JnQ1SRDEd6zOgXe-U")
 ADMIN_CHAT_ID = os.getenv("572255263")
-RENDER_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+RENDER_HOSTNAME = os.getenv("aquanorma.onrender.com")
 
 # Проверяем, что переменные окружения заданы
 if not TOKEN:
