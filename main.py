@@ -1,101 +1,179 @@
-from fastapi import FastAPI, Request
-from telegram import Update, Bot
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    filters,
-    CallbackContext
-)
+import logging
 import os
-import uuid
-from dotenv import load_dotenv
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler, ConversationHandler
 
-app = FastAPI()
+# --- НАСТРОЙКИ ---
+# Получаем токен и ID чата из переменных окружения
+TELEGRAM_BOT_TOKEN = os.environ.get('8012532063:AAGNNZ7XkdLQU_-sMR2SG9tLb1ZICVLOSWo')
+YOUR_PERSONAL_CHAT_ID = os.environ.get('572255263')
+# --- КОНЕЦ НАСТРОЕК ---
 
-# Загрузка переменных окружения
-load_dotenv()
-TELEGRAM_TOKEN = os.getenv("8012532063:AAGNNZ7XkdLQU_-sMR2SG9tLb1ZICVLOSWo")  # Переменная должна быть в .env
-YOUR_TELEGRAM_ID = os.getenv("572255263")  # Ваш ID чату
+# Настройка логирования
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
-# Структура для хранения заявок
-tickets = {}
+# Определяем состояния для ConversationHandler
+CATEGORY, PHONE, ADDRESS = range(3) # Добавили состояние ADDRESS
 
-# Инициализация Telegram приложения
-telegram_app = Application.builder().token(TELEGRAM_TOKEN).build()
+# Категории услуг
+CATEGORIES = {
+    "heat_meter_verify": "Повірка лічильника опалення",
+    "battery_replace": "Заміна батарейки",
+    "water_meter_replace": "Заміна лічильника води",
+    "water_meter_verify": "Повірка лічильника води",
+}
 
-async def start(update: Update, context: CallbackContext):
+# Функция для команды /start
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Отправляет приветственное сообщение и предлагает выбрать категорию."""
+    keyboard = [
+        [InlineKeyboardButton(text, callback_data=key)] for key, text in CATEGORIES.items()
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    # Убираем любую предыдущую клавиатуру на всякий случай
     await update.message.reply_text(
-        "Вітаю! Для подачі заявки введіть: \n"
-        "1. Ім'я\n"
-        "2. Адресу\n"
-        "3. Номер телефону\n"
-        "Почнемо з імені."
+        'Вітаю! Я допоможу вам оформити заявку. Будь ласка, оберіть послугу:',
+        reply_markup=reply_markup
     )
-    context.user_data["step"] = 1  # Начальный этап
+    # Очищаем user_data на случай перезапуска диалога
+    context.user_data.clear()
+    return CATEGORY # Переходим в состояние выбора категории
 
-async def handle_message(update: Update, context: CallbackContext):
-    user = update.effective_user
-    current_step = context.user_data.get("step", 1)
-    text = update.message.text.strip()
+# Функция обработки нажатия кнопки с категорией
+async def category_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Обрабатывает выбор категории и запрашивает номер телефона."""
+    query = update.callback_query
+    await query.answer()
 
-    if current_step == 1:  # Ввод имени
-        context.user_data["name"] = text
-        context.user_data["step"] = 2
-        await update.message.reply_text("Введіть адресу:")
-    elif current_step == 2:  # Ввод адреса
-        context.user_data["address"] = text
-        context.user_data["step"] = 3
-        await update.message.reply_text("Введіть номер телефону:")
-    elif current_step == 3:  # Ввод номера телефона
-        context.user_data["phone"] = text
+    category_key = query.data
+    category_text = CATEGORIES.get(category_key, "Невідома категорія")
+    context.user_data['category'] = category_text # Сохраняем выбранную категорию
 
-        # Генерация номера заявки
-        ticket_id = str(uuid.uuid4())[:8]
-        tickets[ticket_id] = {
-            "name": context.user_data["name"],
-            "address": context.user_data["address"],
-            "phone": context.user_data["phone"],
-            "user_id": user.id
-        }
+    await query.edit_message_text(text=f"Ви обрали: {category_text}")
 
-        # Уведомление пользователя
-        await update.message.reply_text(
-            f"Дякуємо! Ваша заявка №{ticket_id} прийнята. Очікуйте зворотнього зв'язку."
-        )
+    # Запрашиваем номер телефона
+    phone_button = KeyboardButton(text="📱 Надіслати номер телефону", request_contact=True)
+    reply_markup = ReplyKeyboardMarkup([[phone_button]], one_time_keyboard=True, resize_keyboard=True)
 
-        # Уведомление администратора
-        await context.bot.send_message(
-            chat_id=YOUR_TELEGRAM_ID,
-            text=f"Нова заявка №{ticket_id}:\n"
-                 f"Ім'я: {context.user_data['name']}\n"
-                 f"Адреса: {context.user_data['address']}\n"
-                 f"Телефон: {context.user_data['phone']}"
-        )
-        context.user_data.clear()  # Очистка данных
-
-async def error_handler(update: object, context: CallbackContext):
     await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Виникла помилка. Спробуйте ще раз."
+        chat_id=query.message.chat_id,
+        text='Тепер, будь ласка, надайте ваш номер телефону для зв\'язку, натиснувши кнопку нижче:',
+        reply_markup=reply_markup
+    )
+    return PHONE # Переходим в состояние ожидания телефона
+
+# Функция обработки получения контакта (телефона)
+async def phone_received(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Обрабатывает получение контакта и запрашивает адрес."""
+    contact = update.message.contact
+    phone_number = contact.phone_number
+    context.user_data['phone'] = phone_number # Сохраняем номер телефона
+
+    # Убираем клавиатуру запроса телефона и просим ввести адрес
+    await update.message.reply_text(
+        'Дякую! Тепер, будь ласка, введіть вашу адресу (місто, вулиця, будинок, квартира):',
+        reply_markup=ReplyKeyboardRemove() # Убирает кнопку "Надіслати номер"
+    )
+    return ADDRESS # Переходим в состояние ожидания адреса
+
+# Функция обработки получения адреса
+async def address_received(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Обрабатывает получение адреса и отправляет заявку владельцу."""
+    address = update.message.text
+    context.user_data['address'] = address # Сохраняем адрес
+
+    user = update.message.from_user
+    user_info = f"@{user.username}" if user.username else f"{user.first_name} (ID: {user.id})"
+
+    # Получаем сохраненные данные
+    category = context.user_data.get('category', 'Не вказано')
+    phone_number = context.user_data.get('phone', 'Не вказано')
+    address_text = context.user_data.get('address', 'Не вказано')
+
+    # Формируем текст заявки для отправки владельцу
+    application_text = (
+        f"🔔 Нова заявка! 🔔\n\n"
+        f"👤 Від: {user_info}\n"
+        f"📞 Телефон: +{phone_number}\n"
+        f"🏠 Адреса: {address_text}\n" # Добавили адрес
+        f"🔧 Послуга: {category}"
     )
 
-# Инициализация обработчиков при старте приложения
-async def initialize_telegram():
-    telegram_app.add_handler(CommandHandler("start", start))
-    telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    telegram_app.add_error_handler(error_handler)
-    await telegram_app.initialize()
+    # Отправляем заявку на ЛИЧНЫЙ Chat ID владельца
+    try:
+        if not YOUR_PERSONAL_CHAT_ID:
+             logger.error("YOUR_PERSONAL_CHAT_ID не встановлено!")
+             raise ValueError("Chat ID власника не налаштовано.")
 
-# Запуск инициализации при старте FastAPI
-@app.on_event("startup")
-async def startup():
-    await initialize_telegram()
+        await context.bot.send_message(
+            chat_id=YOUR_PERSONAL_CHAT_ID,
+            text=application_text
+        )
+        logger.info(f"Заявка від {user_info} по послузі '{category}' (Адреса: {address_text}) відправлена.")
+        # Сообщаем пользователю, что заявка принята
+        await update.message.reply_text(
+            '✅ Дякуємо! Ваша заявка прийнята. Ми зв\'яжемося з вами найближчим часом.',
+            reply_markup=ReplyKeyboardRemove() # Убираем любую клавиатуру
+        )
+    except Exception as e:
+        logger.error(f"Помилка відправки заявки: {e}")
+        await update.message.reply_text(
+            '❌ Виникла помилка при відправці заявки. Спробуйте пізніше або зверніться до адміністратора.',
+            reply_markup=ReplyKeyboardRemove()
+        )
 
-# Обработчик вебхука
-@app.post("/webhook")
-async def webhook(request: Request):
-    data = await request.json()
-    update = Update.de_json(data, telegram_app.bot)
-    await telegram_app.process_update(update)
-    return {"status": "ok"}
+    # Очищаем user_data
+    context.user_data.clear()
+    return ConversationHandler.END # Завершаем диалог
+
+# Функция для отмены диалога
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Отменяет текущий диалог."""
+    await update.message.reply_text(
+        'Дію скасовано.',
+        reply_markup=ReplyKeyboardRemove() # Убираем клавиатуру
+    )
+    context.user_data.clear()
+    return ConversationHandler.END
+
+def main() -> None:
+    """Запуск бота."""
+    # Проверка наличия токена и ID перед запуском
+    if not TELEGRAM_BOT_TOKEN:
+        logger.critical("Не знайдено TELEGRAM_BOT_TOKEN! Встановіть змінну оточення.")
+        return
+    if not YOUR_PERSONAL_CHAT_ID:
+        logger.critical("Не знайдено YOUR_PERSONAL_CHAT_ID! Встановіть змінну оточення.")
+        # Можно не останавливать бота, а просто логировать ошибку,
+        # но заявки не будут отправляться. Решил остановить для ясности.
+        return
+    try:
+        # Пробуем преобразовать ID в число для ранней проверки
+        int(YOUR_PERSONAL_CHAT_ID)
+    except ValueError:
+        logger.critical(f"YOUR_PERSONAL_CHAT_ID ('{YOUR_PERSONAL_CHAT_ID}') не є дійсним числовим ID чату!")
+        return
+
+
+    # Создаем Application
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+
+    # Создаем ConversationHandler с новыми состояниями и переходами
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            CATEGORY: [CallbackQueryHandler(category_choice)],
+            PHONE: [MessageHandler(filters.CONTACT, phone_received)],
+             # Добавляем обработчик для текстового сообщения в состоянии ADDRESS
+            ADDRESS: [MessageHandler(filters.TEXT & ~filters.COMMAND, address_received)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)],
+    )
+
+    application.add_handler(conv_handler)
+
+    # Запускаем бота (в
